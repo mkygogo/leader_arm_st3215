@@ -1,0 +1,60 @@
+# --- Python 通用 ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C 扩展 (如果你的机器人项目涉及C/C++编译)
+*.so
+.dylib
+
+# --- 发布与构建 ---
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- 虚拟环境 (Virtual Environments) ---
+# 包含常见的命名习惯
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Conda ---
+# 如果你用 conda 创建在项目目录下的环境
+.conda/
+
+# --- UV (你之前提到过的包管理器) ---
+# uv 有时会生成 .venv，上面已经包含了。
+# 如果有 uv.lock 但你不想锁版本（通常建议保留锁文件），可以忽略。
+# 这里保留 uv.lock，如果你不想上传它，取消下面一行的注释：
+# uv.lock
+
+# --- IDE 配置 (建议忽略，每个人配置不同) ---
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+
+# --- 机器人/数据相关 (建议
