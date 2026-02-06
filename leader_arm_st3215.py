@@ -9,25 +9,49 @@ STS_RESOLUTION = 4096.0
 STS_DEGREE_RANGE = 360.0
 
 class LeaderArm:
-    def __init__(self, port, baudrate=1000000, servo_ids=[1, 2, 3, 4, 5, 6, 7]):
+    # 修改 __init__，增加 config_file 参数
+    def __init__(self, port, baudrate=1000000, servo_ids=[1, 2, 3, 4, 5, 6, 7], config_file="leader_config.json"):
         """
-        Leader Arm (主臂) 控制类
-        负责读取 STS3215 舵机数据并转换为角度
+        config_file: 用于区分左臂和右臂的校准文件
         """
+        self.config_file = config_file  # 保存文件名到实例变量
         self.servo_ids = servo_ids
         self.driver = STSServoDriver(port, baudrate)
         
-        # 默认零点偏移量 (默认为2048，即舵机中间位置)
+        # 检查串口
+        if not self.driver.ser or not self.driver.ser.is_open:
+            raise Exception(f"❌ CRITICAL ERROR: Could not open port {port}.")
+
         self.home_offsets = {id: 2048 for id in servo_ids}
-        
-        # 默认方向系数 (1 或 -1)，用于后续反向修正
         self.directions = {id: 1 for id in servo_ids}
         
-        # 尝试加载配置文件
-        self.load_config()
+        self.load_config() # 加载指定的文件
 
-        print("Leader Arm Initialized.")
-        print(f"IDs: {self.servo_ids}")
+        print(f"Leader Arm Initialized (Config: {self.config_file})")
+
+    # 修改 save_config 使用 self.config_file
+    def save_config(self):
+        config = {
+            "home_offsets": self.home_offsets,
+            "directions": self.directions
+        }
+        with open(self.config_file, 'w') as f:
+            json.dump(config, f, indent=4)
+        print(f"Config saved to {self.config_file}")
+
+    # 修改 load_config 使用 self.config_file
+    def load_config(self):
+        if os.path.exists(self.config_file):
+            try:
+                with open(self.config_file, 'r') as f:
+                    config = json.load(f)
+                    self.home_offsets = {int(k): v for k, v in config.get("home_offsets", {}).items()}
+                    self.directions = {int(k): v for k, v in config.get("directions", {}).items()}
+                print(f"Configuration loaded from {self.config_file}.")
+            except Exception as e:
+                print(f"Failed to load config: {e}")
+        else:
+            print(f"No config file found ({self.config_file}). Using defaults.")
         
     def set_torque(self, enable):
         """
@@ -54,25 +78,37 @@ class LeaderArm:
     def get_angles(self):
         """
         读取并计算当前角度 (单位：度)
-        Angle = (Current - Home) * Ratio * Direction
+        包含【过零点自动修正】逻辑
         """
         raw_data = self.get_raw_positions()
         angles = {}
         
         for sid, raw_val in raw_data.items():
             if raw_val == -1:
-                angles[sid] = None # 传感器故障
+                angles[sid] = None
                 continue
             
-            # 1. 计算相对偏差
+            # 1. 获取零点值
             offset = self.home_offsets.get(sid, 2048)
+            
+            # 2. 计算原始偏差
             delta = raw_val - offset
             
-            # 2. 转换为角度
-            # STS3215: 4096 step = 360 degree => 1 step = 0.08789 degree
-            deg = delta * (STS_DEGREE_RANGE / STS_RESOLUTION)
+            # ================= [新增] 过零点处理逻辑 =================
+            # STS3215 总分辨率是 4096
+            # 如果偏差 > 2048，说明它向负方向跨过了0点，变成了巨大的正数 -> 减去4096
+            # 如果偏差 < -2048，说明它向正方向跨过了0点，变成了巨大的负数 -> 加上4096
             
-            # 3. 应用方向修正
+            if delta > 2048:
+                delta -= 4096
+            elif delta < -2048:
+                delta += 4096
+            # =======================================================
+            
+            # 3. 转换为角度 (4096 step = 360 degree)
+            deg = delta * (360.0 / 4096.0)
+            
+            # 4. 应用方向修正
             direction = self.directions.get(sid, 1)
             final_angle = deg * direction
             
