@@ -50,7 +50,7 @@ class MKRobotStandalone:
         # 参数
         self.max_step_rad = 0.8
         self.gripper_open_pos = 0.0
-        self.gripper_closed_pos = -4.7
+        self.gripper_closed_pos = -5.3 #-4.7
 
         # Constants for EMIT control
         self.DM4310_TORQUE_CONSTANT = 0.945  # Nm/A
