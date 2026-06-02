@@ -1,0 +1,28 @@
+{
+  "relay_url": "ws://127.0.0.1:8190",
+  "room": "robot-scene",
+  "display_name": "RobotServer",
+  "control_hz": 50,
+  "status_hz": 20,
+  "command_timeout_ms": 250,
+  "arms": {
+    "left": {
+      "enabled": false,
+      "port": "",
+      "device_id": "1-9.1:1.0",
+      "direction": [1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0],
+      "gripper_open_deg": 50.0,
+      "gripper_close_deg": 0.0,
+      "joint_velocity_scaling": 0.15
+    },
+    "right": {
+      "enabled": true,
+      "port": "",
+      "device_id": "1-7:1.0",
+      "direction": [1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0],
+      "gripper_open_deg": 50.0,
+      "gripper_close_deg": 0.0,
+      "joint_velocity_scaling": 0.15
+    }
+  }
+}

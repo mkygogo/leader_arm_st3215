@@ -1,0 +1,20 @@
+{
+  "ws_port": 7000,
+  "poll_hz": 50,
+  "arms": {
+    "left": {
+      "serial_number": "5A68012049",
+      "servo_ids": [1, 2, 3, 4, 5, 6, 7],
+      "baudrate": 1000000,
+      "home_offsets": {},
+      "directions": {}
+    },
+    "right": {
+      "serial_number": "5A68009611",
+      "servo_ids": [1, 2, 3, 4, 5, 6, 7],
+      "baudrate": 1000000,
+      "home_offsets": {},
+      "directions": {}
+    }
+  }
+}
